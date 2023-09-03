@@ -18,6 +18,8 @@ pub const SCREEN_HEIGHT: i32 = 600;
 pub const GRAVITY: f32 = 1.0;
 pub const JUMP_FORCE: f32 = 12.0;
 
+const PIPE_SPEED: f32 = 15.0;
+
 type SharedGameState = Arc<Mutex<GameState>>;
 
 #[tokio::main]
@@ -64,10 +66,11 @@ async fn main() {
     });
     let game_state_pipe_moving = game_state.clone();
     thread::spawn(move || loop {
-        thread::sleep(Duration::from_millis(30));
+        let step = 4.0;
+        thread::sleep(Duration::from_millis((step * 100.0 / PIPE_SPEED) as u64));
         let mut game_state = game_state_pipe_moving.lock().unwrap();
         for pipe in &mut game_state.pipes {
-            pipe.x -= 5;
+            pipe.x -= step as i32;
         }
     });
     render_handle.await.unwrap();
