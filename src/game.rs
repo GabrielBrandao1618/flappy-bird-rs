@@ -1,4 +1,4 @@
-use crate::objects::{pipe::PipePair, player::Player, VisibleObject};
+use crate::objects::{pipe::PipePair, player::Player};
 
 pub struct GameState {
     pub pipes: Vec<Box<PipePair>>,
