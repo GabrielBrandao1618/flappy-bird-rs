@@ -93,5 +93,22 @@ async fn main() {
             }
         }
     });
+    let game_clone = game.clone();
+    thread::spawn(move || loop {
+        thread::sleep(Duration::from_millis(150));
+        let mut game = game_clone.lock().unwrap();
+        if game.player.y > SCREEN_HEIGHT {
+            game.reset();
+        }
+        for pipe in game.pipes.clone().iter() {
+            let is_player_colliding_pipe = (game.player.x + game.player.width > pipe.x
+                && game.player.x < pipe.x + PIPE_WIDTH)
+                && ((game.player.y < pipe.opening_y)
+                    || (game.player.y + game.player.height > pipe.opening_y + pipe.opening_height));
+            if is_player_colliding_pipe {
+                game.reset();
+            }
+        }
+    });
     render_handle.await.unwrap();
 }
