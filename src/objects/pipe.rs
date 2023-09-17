@@ -6,6 +6,7 @@ use super::VisibleObject;
 
 pub const PIPE_WIDTH: i32 = 80;
 
+#[derive(Clone, Copy)]
 pub struct PipePair {
     pub opening_y: i32,
     pub opening_height: i32,

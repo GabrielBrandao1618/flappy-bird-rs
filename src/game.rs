@@ -1,7 +1,7 @@
 use crate::objects::{pipe::PipePair, player::Player};
 
 pub struct GameState {
-    pub pipes: Vec<Box<PipePair>>,
+    pub pipes: Vec<PipePair>,
     pub player: Player,
 }
 impl GameState {
