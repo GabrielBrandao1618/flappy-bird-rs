@@ -26,7 +26,9 @@ type SharedGameInstance = Arc<Mutex<Game>>;
 
 #[tokio::main]
 async fn main() {
-    let game: SharedGameInstance = Arc::new(Mutex::new(Game::new().player(Player::new().x(50))));
+    let game: SharedGameInstance = Arc::new(Mutex::new(
+        Game::new().player(Player::new().x(50).y(SCREEN_HEIGHT / 2)),
+    ));
     let game_clone = game.clone();
     let render_handle = tokio::spawn(async move {
         let (mut rl, thread) = init().size(SCREEN_WIDTH, SCREEN_HEIGHT).build();
@@ -40,6 +42,7 @@ async fn main() {
             }
             game.player.draw(&mut d);
             if d.is_key_pressed(KeyboardKey::KEY_SPACE) {
+                game.state = GameState::Running;
                 game.player.acceleration_y = -JUMP_FORCE;
             }
         }
@@ -57,15 +60,17 @@ async fn main() {
     thread::spawn(move || loop {
         thread::sleep(Duration::from_secs(PIPE_SPAWN_COOLDOWN_SECS));
         let mut game = game_clone.lock().unwrap();
-        let mut rng = rand::thread_rng();
-        let opening_height = 200;
-        let pipe_y = rng.gen_range(50..(SCREEN_HEIGHT - opening_height - 50));
-        game.pipes.push(
-            PipePair::new()
-                .x(SCREEN_WIDTH)
-                .opening_height(opening_height)
-                .opening_y(pipe_y),
-        );
+        if let GameState::Running = game.state {
+            let mut rng = rand::thread_rng();
+            let opening_height = 200;
+            let pipe_y = rng.gen_range(50..(SCREEN_HEIGHT - opening_height - 50));
+            game.pipes.push(
+                PipePair::new()
+                    .x(SCREEN_WIDTH)
+                    .opening_height(opening_height)
+                    .opening_y(pipe_y),
+            );
+        }
     });
     let game_clone = game.clone();
     thread::spawn(move || loop {
